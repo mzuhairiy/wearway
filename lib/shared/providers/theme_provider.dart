@@ -1,19 +1,23 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:wearway_flutter/data/providers/repository_providers.dart';
 
 // `part` menyambung ke file hasil codegen (build_runner). Analog: file .g.dart
 // berisi provider yang di-generate dari anotasi @riverpod di bawah.
 part 'theme_provider.g.dart';
 
-/// Controller ThemeMode global (light/dark/system).
-/// `@riverpod` + Notifier = state provider, AutoDispose default.
-/// Settings prompt nanti bakal persist pilihan ini ke Hive box 'settings'.
-@riverpod
+/// Controller ThemeMode global (light/dark/system), persist di Hive `settings`.
+/// keepAlive: dibaca di root app (WearWayApp) → hidup selama app.
+@Riverpod(keepAlive: true)
 class ThemeModeController extends _$ThemeModeController {
   @override
-  ThemeMode build() => ThemeMode.system; // default ikut tema OS
+  ThemeMode build() => ref.read(settingsRepositoryProvider).getTheme();
 
-  // Notifier butuh method eksplisit (bukan setter) untuk mutasi state.
-  // ignore: use_setters_to_change_properties
-  void setMode(ThemeMode mode) => state = mode;
+  /// Ganti tema → update state (instant, tanpa restart) + persist ke Hive.
+  void setMode(ThemeMode mode) {
+    state = mode;
+    unawaited(ref.read(settingsRepositoryProvider).setTheme(mode));
+  }
 }

@@ -1,9 +1,11 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:wearway_flutter/features/auth/providers/auth_controller.dart';
 
 part 'session_provider.g.dart';
 
-/// Placeholder status login untuk router guard (Prompt 1).
-/// Sementara selalu `false` (guest).
-// TODO(prompt3): baca 'current_user_id' dari Hive box 'meta' via auth notifier.
+/// Status login turunan dari [AuthController] (null = guest).
+/// Dipakai router guard & UI. Reaktif: berubah otomatis saat login/logout.
 @riverpod
-bool isLoggedIn(Ref ref) => false;
+bool isLoggedIn(Ref ref) {
+  return ref.watch(authControllerProvider).value != null;
+}

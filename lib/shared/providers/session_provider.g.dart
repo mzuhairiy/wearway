@@ -8,22 +8,19 @@ part of 'session_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Placeholder status login untuk router guard (Prompt 1).
-/// TODO(Prompt 3): ganti body → baca 'current_user_id' dari Hive box 'meta'
-/// via auth notifier. Sementara selalu `false` (guest).
+/// Status login turunan dari [AuthController] (null = guest).
+/// Dipakai router guard & UI. Reaktif: berubah otomatis saat login/logout.
 
 @ProviderFor(isLoggedIn)
 final isLoggedInProvider = IsLoggedInProvider._();
 
-/// Placeholder status login untuk router guard (Prompt 1).
-/// TODO(Prompt 3): ganti body → baca 'current_user_id' dari Hive box 'meta'
-/// via auth notifier. Sementara selalu `false` (guest).
+/// Status login turunan dari [AuthController] (null = guest).
+/// Dipakai router guard & UI. Reaktif: berubah otomatis saat login/logout.
 
 final class IsLoggedInProvider extends $FunctionalProvider<bool, bool, bool>
     with $Provider<bool> {
-  /// Placeholder status login untuk router guard (Prompt 1).
-  /// TODO(Prompt 3): ganti body → baca 'current_user_id' dari Hive box 'meta'
-  /// via auth notifier. Sementara selalu `false` (guest).
+  /// Status login turunan dari [AuthController] (null = guest).
+  /// Dipakai router guard & UI. Reaktif: berubah otomatis saat login/logout.
   IsLoggedInProvider._()
     : super(
         from: null,
@@ -57,4 +54,4 @@ final class IsLoggedInProvider extends $FunctionalProvider<bool, bool, bool>
   }
 }
 
-String _$isLoggedInHash() => r'320bc70210c984383e6b712e1bf899709caea227';
+String _$isLoggedInHash() => r'29d92f3e7819625284094a3947e86d437151e45e';

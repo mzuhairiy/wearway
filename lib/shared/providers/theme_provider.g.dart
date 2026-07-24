@@ -8,28 +8,25 @@ part of 'theme_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Controller ThemeMode global (light/dark/system).
-/// `@riverpod` + Notifier = state provider bergaya reducer, AutoDispose default.
-/// Prompt Settings nanti bakal persist pilihan ini ke Hive box 'settings'.
+/// Controller ThemeMode global (light/dark/system), persist di Hive `settings`.
+/// keepAlive: dibaca di root app (WearWayApp) → hidup selama app.
 
 @ProviderFor(ThemeModeController)
 final themeModeControllerProvider = ThemeModeControllerProvider._();
 
-/// Controller ThemeMode global (light/dark/system).
-/// `@riverpod` + Notifier = state provider bergaya reducer, AutoDispose default.
-/// Prompt Settings nanti bakal persist pilihan ini ke Hive box 'settings'.
+/// Controller ThemeMode global (light/dark/system), persist di Hive `settings`.
+/// keepAlive: dibaca di root app (WearWayApp) → hidup selama app.
 final class ThemeModeControllerProvider
     extends $NotifierProvider<ThemeModeController, ThemeMode> {
-  /// Controller ThemeMode global (light/dark/system).
-  /// `@riverpod` + Notifier = state provider bergaya reducer, AutoDispose default.
-  /// Prompt Settings nanti bakal persist pilihan ini ke Hive box 'settings'.
+  /// Controller ThemeMode global (light/dark/system), persist di Hive `settings`.
+  /// keepAlive: dibaca di root app (WearWayApp) → hidup selama app.
   ThemeModeControllerProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
         name: r'themeModeControllerProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -51,11 +48,10 @@ final class ThemeModeControllerProvider
 }
 
 String _$themeModeControllerHash() =>
-    r'c9b61d4e3becf845a3017e2bc6dc5ade14685335';
+    r'f9310fbe80308b608903e65fe1629ea12210c8e6';
 
-/// Controller ThemeMode global (light/dark/system).
-/// `@riverpod` + Notifier = state provider bergaya reducer, AutoDispose default.
-/// Prompt Settings nanti bakal persist pilihan ini ke Hive box 'settings'.
+/// Controller ThemeMode global (light/dark/system), persist di Hive `settings`.
+/// keepAlive: dibaca di root app (WearWayApp) → hidup selama app.
 
 abstract class _$ThemeModeController extends $Notifier<ThemeMode> {
   ThemeMode build();
