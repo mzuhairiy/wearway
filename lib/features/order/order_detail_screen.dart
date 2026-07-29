@@ -40,9 +40,8 @@ class OrderDetailScreen extends ConsumerWidget {
           key: ValueKey(TestKeys.errorState),
           child: Text('Gagal memuat pesanan'),
         ),
-        data: (order) => order == null
-            ? const _NotFound()
-            : _OrderDetailBody(order: order),
+        data: (order) =>
+            order == null ? const _NotFound() : _OrderDetailBody(order: order),
       ),
     );
   }

@@ -9,9 +9,7 @@ class AddressRepository {
 
   /// Alamat yang tampil di Address Book (hanya `isSaved`).
   Future<List<AddressModel>> list(String userId) async {
-    return _box.values
-        .where((a) => a.userId == userId && a.isSaved)
-        .toList();
+    return _box.values.where((a) => a.userId == userId && a.isSaved).toList();
   }
 
   Future<AddressModel?> getById(String id) async => _box.get(id);

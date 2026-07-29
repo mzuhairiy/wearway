@@ -113,9 +113,7 @@ class _DevMenuSheetState extends ConsumerState<DevMenuSheet> {
   }
 
   Future<void> _onSpeedUpChanged(bool value) async {
-    await ref
-        .read(settingsRepositoryProvider)
-        .setSpeedUpOrders(value: value);
+    await ref.read(settingsRepositoryProvider).setSpeedUpOrders(value: value);
     // Order berikut pakai interval baru (scheduler dibangun ulang).
     ref.invalidate(orderStatusSchedulerProvider);
     if (mounted) setState(() => _speedUp = value);
