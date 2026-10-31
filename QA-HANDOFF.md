@@ -220,3 +220,92 @@ beda.
 Referensi lanjutan: `PROJECT_PLAN.md` (section 4 halaman/fitur, 5 Hive schema,
 6 seed spec, 7 ValueKey, 8 fitur khas mobile, 10 build prompts) dan `NOTES.md`
 (semua deviasi teknis + bug fix + verifikasi emulator).
+
+## 11. Appium Flutter Driver Instrumentation (Phase A)
+
+Instrumentation so this SUT can be driven by **Appium Flutter Driver**. The
+automation framework (WebdriverIO + TypeScript + Appium 3) lives in a **separate
+repo** — here we only add the SUT hooks. Full readiness matrix: [`docs/APPIUM_READINESS.md`](docs/APPIUM_READINESS.md).
+
+### Two entrypoints (normal vs automation)
+
+| | File | Flutter Driver extension | Used for |
+|---|---|---|---|
+| **Normal** | `lib/main.dart` | ❌ no | `flutter run`, release, manual QA |
+| **Automation** | `lib/main_automation.dart` | ✅ `enableFlutterDriverExtension()` | Appium / instrumented debug build |
+
+`main_automation.dart` **does not duplicate** the bootstrap — it calls the normal
+`main.dart` (`app.main()`) as-is, so all init stays single-sourced: Hive + adapter
+registration + 8 boxes, deterministic seed, `ProviderScope`, `NotificationService`,
+Toastr, lifecycle observer (`Hive.close()`), router, theme, session restore. The
+only difference is the single `enableFlutterDriverExtension()` line, called
+**before** `app.main()` (before the Flutter binding is initialized).
+
+> ⚠️ **Do not** enable the Flutter Driver extension in the release entrypoint.
+> Release stays `lib/main.dart`. `flutter_driver` lives in `dev_dependencies`.
+
+### Dependency
+
+```yaml
+dev_dependencies:
+  flutter_driver:
+    sdk: flutter   # version follows the installed Flutter stable, not pub.dev
+```
+
+### Build command
+
+```bash
+# Android — instrumented debug APK
+flutter build apk --debug --target=lib/main_automation.dart
+
+# Android — run directly on emulator/device (prints the VM Service URI)
+flutter run --debug --target=lib/main_automation.dart
+
+# iOS Simulator (macOS + Xcode ONLY) — produces the simulator Runner.app
+flutter build ios --simulator --debug --target=lib/main_automation.dart
+```
+
+APK output: `build/app/outputs/flutter-apk/app-debug.apk`. iOS Simulator `.app`
+output: `build/ios/iphonesimulator/Runner.app` (used as `appium:app` in the
+automation repo's capabilities).
+
+### Dart VM Service / Flutter Driver extension
+
+The goal of this instrumentation = expose the **`ext.flutter.driver`** extension
+on the Dart VM Service. Appium Flutter Driver attaches to it to locate widgets
+via `byValueKey(...)` (the ValueKey contract in §6). Manual check: `flutter run
+--debug --target=lib/main_automation.dart` → watch for `A Dart VM Service on ...
+is available at: http://127.0.0.1:<port>/<token>/` → `ext.flutter.driver` is
+registered once the app finishes init.
+
+### Platform limitations (important)
+
+- **iOS**: a Simulator build **≠** a signed physical-device IPA. A physical device
+  needs separate signing/provisioning (Apple Developer account, `DEVELOPMENT_TEAM`,
+  `codesign`) — not set up in this repo.
+- **Runtime permissions are still native dialogs** (location at checkout,
+  notifications on Android 13+). Not Flutter widgets → the automation repo must
+  handle them via a **native context** (UiAutomator2 / XCUITest), not the Flutter
+  finder. No fake permission bypass was added (on purpose, to keep production
+  behavior intact).
+
+### Verification status (as of Phase A — see `docs/APPIUM_READINESS.md`)
+
+**Android: actually verified** (Flutter 3.47.9 · Dart 3.13.7 · emulator API 35):
+`pub get` resolves clean · `build_runner` 55 outputs · `dart format` 0 changed ·
+`flutter analyze` **No issues found!** · `flutter test` **79 pass** · instrumented
+`app-debug.apk` built · `flutter drive` **PASS** (driver connect = `ext.flutter.driver`
+reachable, smoke `byValueKey('nav_cart')` → `cart_screen`). **iOS: NOT EXECUTED**
+(dev machine is Windows; needs macOS + Xcode).
+
+Two important notes for the automation repo: (1) adb port 5037 clashes with a local
+LoopUp service → use `ANDROID_ADB_SERVER_PORT=5038`; (2) `app.main()` runs async
+init before `runApp()` → automation **must wait for a known ValueKey** (e.g.
+`bottom_nav_bar`) before acting. Details in `docs/APPIUM_READINESS.md` §4.
+
+### WebdriverIO repo integration (future)
+
+The automation repo points `appium:app` at the build artifact above, using
+`automationName: FlutterIntegration` (Appium Flutter Driver), primary locator
+`byValueKey`. Deterministic initial state: see §8 (seed) + dev menu Reset All
+Data (§2). DO NOT build the WebdriverIO framework in this SUT repo.

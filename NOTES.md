@@ -350,6 +350,42 @@ dari SDK) jadi tidak bisa di-install. Semua tooling wajib pakai `analyzer >=7.3`
 - Diverifikasi di emulator: native splash (putih + logo 3D) + launcher icon
   (lingkaran hijau + W) tampil benar.
 
+### 42. Appium Flutter Driver instrumentation (Phase A)
+
+- **Automation entrypoint** `lib/main_automation.dart`: minimal wrapper that calls
+  `enableFlutterDriverExtension()` then `app.main()` (from `main.dart`). No
+  bootstrap duplication — all init (Hive, seed, ProviderScope, notifications,
+  toastr, lifecycle, router, theme, session restore) stays single-sourced in
+  `main.dart`.
+- **Dependency** `flutter_driver: sdk: flutter` added to `dev_dependencies` (not
+  `dependencies`) — used only by the automation entrypoint, never in release.
+- **Lint quirk**: `lib/main_automation.dart` imports `flutter_driver` (a
+  dev_dependency) from `lib/` → `very_good_analysis` triggers
+  `depend_on_referenced_packages`. Added `// ignore: depend_on_referenced_packages`
+  on the import line (standard Appium/WebdriverIO automation-entrypoint pattern).
+- **Android validation: PASS** (toolchain installed on this machine: Flutter
+  3.47.9, Dart 3.13.7, JDK 17, Android SDK + emulator API 35). `pub get` resolves
+  clean (`flutter_driver` pulls `sync_http`+`webdriver`, no conflict), `build_runner`
+  55 outputs, `dart format` 0 changed, `flutter analyze` clean, `flutter test`
+  79 pass, instrumented `app-debug.apk` built, `flutter drive` PASS (driver connect
+  + `byValueKey` smoke). iOS NOT EXECUTED (Windows). Matrix:
+  `docs/APPIUM_READINESS.md`.
+- **Quirk — adb port 5037 clash**: adb's default port is taken by a local LoopUp
+  service (`...DataUsageMediationApi`, HTTP) → `adb` errors `protocol fault (status
+  HTTP)`. Worked around with `ANDROID_ADB_SERVER_PORT=5038` (persisted to user
+  env). The automation repo must use the same adb port.
+- **Quirk — pre-`runApp()` race**: `app.main()` does heavy async init before
+  `runApp()`, while the driver extension is already live → driver commands sent
+  before `runApp()` fail with `No root widget is attached`. Automation must wait
+  for a ValueKey (e.g. `bottom_nav_bar`) before acting. Not a bug; startup trait.
+- **Toolchain drift (3.47.9 > 3.44.7)**: the newer formatter/linter surfaced 2
+  issues in existing code → fixed minimally: removed a redundant `unawaited()` in
+  `hero_banner.dart` (`animateToPage` is now `@awaitNotRequired`), and reformatted
+  `test/unit/checkout/checkout_controller_test.dart`.
+- **SUT issue found (OPEN, Phase B)**: `ios/Runner/Info.plist` has no permission
+  usage-description strings (`NSLocationWhenInUseUsageDescription`, etc.). Not
+  changed in Phase A (don't alter production permission behavior).
+
 ## Catatan lain
 
 - `flutter_lints` dihapus (digantikan `very_good_analysis`).

@@ -21,34 +21,34 @@ class _MockAddressRepo extends Mock implements AddressRepository {}
 class _MockCartRepo extends Mock implements CartRepository {}
 
 ProductModel _product() => const ProductModel(
-      id: 'p1',
-      slug: 'p1',
-      name: 'Classic Tee',
-      description: '',
-      priceIdr: 100000,
-      stock: 10,
-      imageUrls: [],
-      categoryId: 'c1',
-      sizes: ['M'],
-      colors: ['black'],
-      isFeatured: false,
-      rating: 4.5,
-      reviewCount: 10,
-      badges: [],
-      createdAtMs: 0,
-    );
+  id: 'p1',
+  slug: 'p1',
+  name: 'Classic Tee',
+  description: '',
+  priceIdr: 100000,
+  stock: 10,
+  imageUrls: [],
+  categoryId: 'c1',
+  sizes: ['M'],
+  colors: ['black'],
+  isFeatured: false,
+  rating: 4.5,
+  reviewCount: 10,
+  badges: [],
+  createdAtMs: 0,
+);
 
 CartLine _line({int qty = 2}) => CartLine(
-      item: CartItemModel(
-        id: 'ci1',
-        productId: 'p1',
-        selectedSize: 'M',
-        selectedColor: 'black',
-        quantity: qty,
-        addedAtMs: 0,
-      ),
-      product: _product(),
-    );
+  item: CartItemModel(
+    id: 'ci1',
+    productId: 'p1',
+    selectedSize: 'M',
+    selectedColor: 'black',
+    quantity: qty,
+    addedAtMs: 0,
+  ),
+  product: _product(),
+);
 
 CartSummary _cartSummary({int subtotal = 200000, int discount = 0}) =>
     CartSummary(
@@ -234,8 +234,9 @@ void main() {
         ],
       );
       addTearDown(c.dispose);
-      final orderId =
-          await c.read(checkoutControllerProvider.notifier).placeOrder();
+      final orderId = await c
+          .read(checkoutControllerProvider.notifier)
+          .placeOrder();
       expect(orderId, isNull);
       verifyNever(() => orderRepo.create(any()));
     });

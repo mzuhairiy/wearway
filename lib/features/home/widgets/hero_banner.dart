@@ -64,12 +64,10 @@ class _HeroBannerState extends State<HeroBanner> {
     _timer = Timer.periodic(const Duration(seconds: 5), (_) {
       if (!mounted || !_controller.hasClients) return;
       final next = (_page + 1) % _slides.length;
-      unawaited(
-        _controller.animateToPage(
-          next,
-          duration: const Duration(milliseconds: 400),
-          curve: Curves.easeInOut,
-        ),
+      _controller.animateToPage(
+        next,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
       );
     });
   }

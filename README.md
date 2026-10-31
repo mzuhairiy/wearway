@@ -26,6 +26,26 @@ flutter analyze                        # harus: No issues found!
 flutter test                           # smoke test bottom nav
 ```
 
+## Automation build (Appium Flutter Driver)
+
+This SUT has a **separate automation entrypoint** (`lib/main_automation.dart`)
+that enables the Flutter Driver extension. The normal entrypoint (`lib/main.dart`)
+is unchanged. Details: [`QA-HANDOFF.md`](QA-HANDOFF.md) §11 & [`docs/APPIUM_READINESS.md`](docs/APPIUM_READINESS.md).
+
+```bash
+# Android — instrumented debug APK (for Appium Flutter Driver)
+flutter build apk --debug --target=lib/main_automation.dart
+
+# Android — run directly (prints the Dart VM Service URI)
+flutter run --debug --target=lib/main_automation.dart
+
+# iOS Simulator (macOS + Xcode ONLY)
+flutter build ios --simulator --debug --target=lib/main_automation.dart
+```
+
+> Release still uses `lib/main.dart` — DO NOT enable the driver extension in a
+> release build. The WebdriverIO framework lives in a separate automation repo.
+
 ## Status (Prompt 1 — Foundation)
 
 Scaffold + core setup selesai:
